@@ -1,6 +1,6 @@
 FROM php:8.5-fpm
 
-# 1. Instal dependencies sistem yang benar-benar esensial
+# 1. Instal dependencies sistem yang dibutuhkan ekstensi PHP
 RUN apt-get update && apt-get install -y \
     zip \
     unzip \
@@ -9,10 +9,13 @@ RUN apt-get update && apt-get install -y \
     sqlite3 \
     libsqlite3-dev \
     procps \
+    # Tambahan penting untuk intl, mbstring, dan zip:
+    libicu-dev \
+    libonig-dev \
+    libzip-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# 2. Konfigurasi dan Install ekstensi PHP
-# 2. Install ekstensi PHP (Tanpa GD)
+# 2. Install ekstensi PHP
 RUN docker-php-ext-configure intl \
     && docker-php-ext-install -j$(nproc) \
     intl \
@@ -25,7 +28,7 @@ RUN docker-php-ext-configure intl \
     opcache
 
 # 3. Salin konfigurasi PHP kustom
-COPY ./uploads.ini /usr/local/etc/php/conf.d/uploads.ini
+# COPY ./uploads.ini /usr/local/etc/php/conf.d/uploads.ini
 
 # 4. Install Node.js 20
 RUN curl -sL https://deb.nodesource.com/setup_20.x | bash - \
