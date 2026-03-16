@@ -32,7 +32,6 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     pcntl \
     bcmath \
     zip \
-    # Tambahkan opcache untuk speed
     opcache
 
 # 3. Salin konfigurasi PHP kustom
