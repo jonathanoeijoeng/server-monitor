@@ -1,30 +1,20 @@
 FROM php:8.5-fpm
 
-# 1. Instal dependencies sistem (OS Level)
+# 1. Instal dependencies sistem yang benar-benar esensial
 RUN apt-get update && apt-get install -y \
-    libfreetype6-dev \
-    libjpeg62-turbo-dev \
-    libjpeg-dev \
-    libpng-dev \
-    libzip-dev \
-    libonig-dev \
-    libxml2-dev \
-    libicu-dev \
     zip \
     unzip \
     git \
     curl \
     sqlite3 \
     libsqlite3-dev \
-    # Tambahkan procps agar perintah 'top' dan 'free' tersedia di dalam kontainer
     procps \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # 2. Konfigurasi dan Install ekstensi PHP
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-configure intl \
+# 2. Install ekstensi PHP (Tanpa GD)
+RUN docker-php-ext-configure intl \
     && docker-php-ext-install -j$(nproc) \
-    gd \
     intl \
     pdo_sqlite \
     mbstring \
