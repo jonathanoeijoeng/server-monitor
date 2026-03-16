@@ -4,6 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: server-monitor-app
+    privileged: true
     restart: always
     working_dir: /var/www
     environment:
@@ -14,6 +15,8 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
       - ./database:/var/www/database
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
     networks:
       - hellojonathan-network
 
