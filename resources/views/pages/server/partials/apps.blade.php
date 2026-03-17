@@ -32,26 +32,35 @@
     <div class="flex flex-col gap-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div
-                class="bg-white dark:bg-zinc-800 rounded-2xl border border-gray-100 dark:border-zinc-700 overflow-hidden shadow-sm">
+                class="bg-white dark:bg-zinc-800 rounded-2xl border border-gray-100 dark:border-zinc-700 overflow-hidden shadow-sm flex flex-col h-full">
                 <div class="p-4 border-b border-gray-50 dark:border-zinc-700 bg-orange-50 dark:bg-zinc-800/50">
                     <h3 class="text-xs font-bold dark:text-white uppercase tracking-wider text-zinc-800">Docker Status
                     </h3>
                 </div>
-                <div
-                    class="bg-white dark:bg-zinc-800 p-4 rounded-2xl border border-gray-100 dark:border-zinc-700 shadow-sm flex items-center justify-between">
-                    <div class="flex gap-2 items-baseline">
-                        <div class="text-2xl font-black text-gray-900">{{ $dockerStats }}</div>
-                        <div class="text-sm font-normal text-gray-500"> Containers</div>
-                    </div>
-                    <div class="p-3 bg-orange-50 dark:bg-blue-900/20 text-orange-600 rounded-xl">
-                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-width="2"
-                                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                        </svg>
+
+                <div class="p-4 flex-1 flex flex-col justify-center items-start">
+                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 opacity-70">
+                        Docker Instance
+                    </span>
+
+                    <div class="flex items-baseline gap-1">
+                        <span class="text-4xl font-black text-gray-900 dark:text-white leading-none">
+                            {{ explode(' / ', $dockerStats)[0] }}
+                        </span>
+
+                        <span class="text-xl font-bold text-gray-400">
+                            / {{ explode(' / ', $dockerStats)[1] }}
+                        </span>
+
+                        @if((int)explode(' / ', $dockerStats)[0] < (int)explode(' / ', $dockerStats)[1])
+                            <div class="ml-3 flex h-2.5 w-2.5 relative">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                            </div>
+                            @endif
+                        </div>
                     </div>
                 </div>
-            </div>
-
             <div
                 class="bg-white dark:bg-zinc-800 rounded-2xl border border-gray-100 dark:border-zinc-700 overflow-hidden shadow-sm">
                 <div class="p-4 border-b border-gray-50 dark:border-zinc-700 bg-orange-50 dark:bg-zinc-800/50">
