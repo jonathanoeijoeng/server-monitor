@@ -34,14 +34,14 @@ services:
     depends_on:
       - app
 
-  tunnel:
-    image: cloudflare/cloudflared:latest
-    container_name: server-monitor-tunnel
-    restart: always
-    # Ganti YOUR_TOKEN_HERE dengan token asli dari dashboard Cloudflare Anda
-    command: tunnel --no-autoupdate run --token eyJhIjoiZGY4NTRiZGMxMDRhOWQ0MGFhMDUxZTdmMmQwOGE1ZWQiLCJ0IjoiYjFmNGFkYzgtNWE4Zi00NWYyLWE2YTEtNjk3OTIwMGVlZjcxIiwicyI6Ik5EQTFaR05qWkRjdE5EUmhOaTAwWmprM0xUaGtOemt0T1RsaE1EUmtZamRsTVRFMyJ9
-    networks:
-      - hellojonathan-network
+  # tunnel:
+  #   image: cloudflare/cloudflared:latest
+  #   container_name: server-monitor-tunnel
+  #   restart: always
+  #   # Ganti YOUR_TOKEN_HERE dengan token asli dari dashboard Cloudflare Anda
+  #   command: tunnel --no-autoupdate run --token eyJhIjoiZGY4NTRiZGMxMDRhOWQ0MGFhMDUxZTdmMmQwOGE1ZWQiLCJ0IjoiYjFmNGFkYzgtNWE4Zi00NWYyLWE2YTEtNjk3OTIwMGVlZjcxIiwicyI6Ik5EQTFaR05qWkRjdE5EUmhOaTAwWmprM0xUaGtOemt0T1RsaE1EUmtZamRsTVRFMyJ9
+  #   networks:
+  #     - hellojonathan-network
 
   worker:
     build:
