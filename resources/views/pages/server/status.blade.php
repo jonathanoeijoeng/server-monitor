@@ -42,7 +42,6 @@ new class extends Component
         if (PHP_OS_FAMILY !== 'Darwin') {
             // Ubuntu NUC Stats
             $this->cpuUsage = (int) shell_exec("top -bn1 | grep \"Cpu(s)\" | sed \"s/.*, *\\([0-9.]*\\)%* id.*/\\1/\" | awk '{print 100 - $1}'");
-            $this->dispatch('cpu-updated', cpu: $this->cpuUsage);
             $this->ramUsage = (int) shell_exec("free | grep Mem | awk '{print $3/$2 * 100.0}'");
             
             // Disk Space & Free GB
