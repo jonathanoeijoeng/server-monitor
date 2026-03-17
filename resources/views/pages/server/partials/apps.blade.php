@@ -30,7 +30,7 @@
 
 
     <div class="flex flex-col gap-4">
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div
                 class="bg-white dark:bg-zinc-800 rounded-2xl border border-gray-100 dark:border-zinc-700 overflow-hidden shadow-sm">
                 <div class="p-4 border-b border-gray-50 dark:border-zinc-700 bg-orange-50 dark:bg-zinc-800/50">
