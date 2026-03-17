@@ -215,7 +215,7 @@ new class extends Component
 
     <div wire:poll.2s="updateStats" class="grid grid-cols-1 md:grid-cols-5 gap-6">
 
-        <div class="col-span-2 p-6 bg-orange-50 rounded-3xl border border-orange-100 shadow-sm">
+        <div class="col-span-1 md:col-span-2 p-6 bg-orange-50 rounded-3xl border border-orange-100 shadow-sm">
             <p class="text-gray-500 text-xs font-bold uppercase tracking-widest mb-1">CPU Load</p>
 
             <div class="flex items-baseline mb-4 gap-3">
@@ -238,7 +238,7 @@ new class extends Component
             </div>
         </div>
 
-        <div class="col-span-2 p-6 bg-orange-50 rounded-3xl border border-orange-100 shadow-sm">
+        <div class="col-span-1 md:col-span-2 p-6 bg-orange-50 rounded-3xl border border-orange-100 shadow-sm">
             <p class="text-gray-500 text-xs font-bold uppercase tracking-widest mb-1">RAM Usage</p>
             <div class="flex items-baseline mb-4">
                 <h1 class="text-6xl font-black text-gray-900">{{ $ramUsage }}</h1>
