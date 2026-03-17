@@ -13,6 +13,11 @@ new class extends Component
     public $cpuTemp = 0;
     public $uptime = '';
     public $activeContainers = 0;
+    public $downValue = "0";
+    public $downUnit = "kb/s";
+    public $upValue = "0";
+    public $upUnit = "kb/s";
+    private $storageKey = 'network_stats';
     
     public $selectedApp = 'expense-tracker';
     public $lastCommandOutput = '';
@@ -51,6 +56,12 @@ new class extends Component
             $this->cpuTemp = (float) @shell_exec("cat /sys/class/thermal/thermal_zone0/temp") / 1000;
             $this->uptime = shell_exec("uptime -p");
 
+            $downBps = rand(50000, 1500000); // 50KB - 1.5MB
+            $upBps = rand(10000, 300000);    // 10KB - 300KB
+            
+            $this->downloadSpeed = $this->formatBytes($downBps) . '/s';
+            $this->uploadSpeed = $this->formatBytes($upBps) . '/s';
+
             $response = shell_exec("curl --unix-socket /var/run/docker.sock http://localhost/containers/json");
     
             if ($response) {
@@ -67,14 +78,27 @@ new class extends Component
             $this->diskFreeGB = 65;
             $this->diskUsage = 35; // 35% terpakai
             $this->uptime = 'up 2 hours, 30 minutes'; $this->activeContainers = 3;
+
+            $downBps = rand(50000, 1500000); 
+            $upBps = rand(10000, 300000);
         }
+
+        $down = $this->splitBytes($downBps);
+        $this->downValue = $down['value'];
+        $this->downUnit = $down['unit'] . '/s';
+
+        $up = $this->splitBytes($upBps);
+        $this->upValue = $up['value'];
+        $this->upUnit = $up['unit'] . '/s';
 
         $this->dispatch('stats-updated', 
             cpu: $this->cpuUsage, 
             ram: $this->ramUsage,
             diskUsed: $this->diskUsage,
-            diskFree: $this->diskFreeGB
+            cpuTemp: $this->cpuTemp,
         );
+
+        $this->dispatch('network-updated', down: $this->downValue . $this->downUnit, up: $this->upValue . $this->upUnit);
 
         // App Health Check
         foreach ($this->apps as $key => $app) {
@@ -85,6 +109,16 @@ new class extends Component
                 $this->apps[$key]['status'] = 'offline';
             }
         }
+    }
+
+    private function splitBytes($bytes) {
+        if ($bytes < 1024) {
+            return ['value' => number_format($bytes, 0), 'unit' => 'B'];
+        }
+        if ($bytes < 1048576) {
+            return ['value' => number_format($bytes / 1024, 1), 'unit' => 'KB'];
+        }
+        return ['value' => number_format($bytes / 1048576, 1), 'unit' => 'MB'];
     }
 
     public function runAction($action)
@@ -183,7 +217,7 @@ new class extends Component
                 </div>
             </div>
 
-            <div wire:ignore class="bg-white rounded-2xl p-4 shadow-inner" style="height: 300px;">
+            <div wire:ignore class="bg-white rounded-2xl p-4 shadow-inner" style="height: 150;">
                 <canvas id="cpuChart"></canvas>
             </div>
         </div>
@@ -195,7 +229,7 @@ new class extends Component
                 <span class="text-2xl font-bold text-[#E3833C] ml-2">%</span>
             </div>
 
-            <div wire:ignore class="bg-white rounded-2xl p-4 shadow-inner" style="height: 300px;">
+            <div wire:ignore class="bg-white rounded-2xl p-4 shadow-inner" style="height: 150;">
                 <canvas id="ramChart"></canvas>
             </div>
         </div>
@@ -207,7 +241,7 @@ new class extends Component
                 <span class="text-2xl font-bold text-[#E3833C] ml-2">% Used</span>
             </div>
 
-            <div wire:ignore class="bg-white rounded-2xl p-4 shadow-inner flex justify-center" style="height: 300px;">
+            <div wire:ignore class="bg-white rounded-2xl p-4 shadow-inner flex justify-center" style="height: 150px;">
                 <canvas id="diskChart"></canvas>
             </div>
         </div>
