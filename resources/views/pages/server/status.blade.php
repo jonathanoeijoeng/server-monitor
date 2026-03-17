@@ -50,11 +50,20 @@ new class extends Component
             
             $this->cpuTemp = (float) @shell_exec("cat /sys/class/thermal/thermal_zone0/temp") / 1000;
             $this->uptime = shell_exec("uptime -p");
-            $this->activeContainers = (int) shell_exec("docker ps -q | wc -l");
+
+            $response = shell_exec("curl --unix-socket /var/run/docker.sock http://localhost/containers/json");
+    
+            if ($response) {
+                $containers = json_decode($response, true);
+                $this->activeContainers = is_array($containers) ? count($containers) : 0;
+            } else {
+                $this->activeContainers = 0;
+            }
         } else {
             // Mac Mock for testing
             $this->cpuUsage = rand(10, 90);
             $this->ramUsage = rand(20, 80);
+            $this->cpuTemp = rand(30, 85);
             $this->diskFreeGB = 65;
             $this->diskUsage = 35; // 35% terpakai
             $this->uptime = 'up 2 hours, 30 minutes'; $this->activeContainers = 3;
@@ -158,9 +167,20 @@ new class extends Component
 
         <div class="col-span-2 p-6 bg-orange-50 rounded-3xl border border-orange-100 shadow-sm">
             <p class="text-gray-500 text-xs font-bold uppercase tracking-widest mb-1">CPU Load</p>
-            <div class="flex items-baseline mb-4">
-                <h1 class="text-6xl font-black text-gray-900">{{ $cpuUsage }}</h1>
-                <span class="text-2xl font-bold text-[#E3833C] ml-2">%</span>
+
+            <div class="flex items-baseline mb-4 gap-3">
+                <div class="flex items-baseline">
+                    <h1 class="text-6xl font-black text-gray-900">{{ $cpuUsage }}</h1>
+                    <span class="text-2xl font-bold text-[#E3833C] ml-2">%</span>
+                </div>
+
+                <div class="flex items-baseline pb-1 gap-2">
+                    <div class="text-gray-400">temp:</div>
+                    <div class="text-xl font-bold lowercase 
+                        {{ $cpuTemp < 50 ? 'text-green-500' : ($cpuTemp < 75 ? 'text-yellow-500' : 'text-red-500') }}">
+                        {{ $cpuTemp }}°c
+                    </div>
+                </div>
             </div>
 
             <div wire:ignore class="bg-white rounded-2xl p-4 shadow-inner" style="height: 300px;">
