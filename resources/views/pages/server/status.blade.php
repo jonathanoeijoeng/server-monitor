@@ -162,55 +162,58 @@ new class extends Component
     }
 } ?>
 
-<div class="w-full mx-auto bg-white p-12">
+<div class="w-full mx-auto bg-white p-4 md:p-12 min-h-screen overflow-y-auto">
     <header
         class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 pb-4 border-b border-zinc-200 dark:border-zinc-800">
         <div>
             <h1 class="text-3xl font-extrabold text-gray-800 dark:text-white tracking-tight">System Monitor</h1>
         </div>
 
-        <div class="flex gap-3 items-center">
+        <div class="flex flex-row md:flex-row justify-between items-end md:items-center gap-3 w-full">
             <div class="flex items-center gap-2">
-                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Target App:</span>
+                <span class="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-widest">Target:</span>
                 <select wire:model.live="selectedApp"
-                    class="bg-transparent border-none p-1 text-sm font-bold text-orange-600 focus:ring-0 cursor-pointer focus:outline-orange-200 rounded">
+                    class="bg-transparent border-none p-0 md:p-1 text-sm font-bold text-orange-600 focus:ring-0 cursor-pointer focus:outline-orange-200 rounded">
                     @foreach($apps as $key => $app)
                     <option value="{{ $key }}">{{ $app['name'] }}</option>
                     @endforeach
                 </select>
             </div>
-            <div class="group relative">
-                <button wire:click="runAction('perms')" wire:loading.attr="disabled"
-                    class="px-4 py-2 bg-orange-600 text-white rounded-xl text-xs font-bold hover:bg-orange-800 transition shadow-sm cursor-pointer">
-                    <span wire:loading.remove wire:target="runAction('perms')">FIX PERMISSION</span>
-                    <span wire:loading wire:target="runAction('perms')">WORKING...</span>
-                </button>
-                <div
-                    class="absolute bottom-full mb-2 hidden group-hover:block w-64 p-2 bg-zinc-900 text-[10px] text-zinc-400 font-mono rounded-lg shadow-xl border border-zinc-700 z-50">
-                    <p class="text-blue-400 mb-1 font-bold">// Commands:</p>
-                    sudo chown -R www-data:www-data<br>
-                    sudo find . -type d -exec chmod 775<br>
-                    sudo find . -type f -exec chmod 664
-                </div>
-            </div>
 
-            <div class="group relative">
-                <button wire:click="runAction('pull')" wire:loading.attr="disabled"
-                    class="px-4 py-2 bg-zinc-800 dark:bg-white dark:text-zinc-900 text-white rounded-xl text-xs font-bold hover:opacity-90 transition shadow-sm cursor-pointer">
-                    <span wire:loading.remove wire:target="runAction('pull')">GIT PULL</span>
-                    <span wire:loading wire:target="runAction('pull')">PULLING...</span>
-                </button>
-                <div
-                    class="absolute bottom-full right-0 mb-2 hidden group-hover:block w-48 p-2 bg-zinc-900 text-[10px] text-zinc-400 font-mono rounded-lg shadow-xl border border-zinc-700 z-50">
-                    <p class="text-green-400 mb-1 font-bold">// Commands:</p>
-                    git pull origin main<br>
-                    php artisan optimize:clear
+            <div class="flex flex-col md:flex-row gap-2 items-end md:items-center">
+                <div class="group relative w-full md:w-auto">
+                    <button wire:click="runAction('perms')" wire:loading.attr="disabled"
+                        class="w-full md:w-auto px-3 py-1.5 md:px-4 md:py-2 bg-orange-600 text-white rounded-xl text-[10px] md:text-xs font-bold hover:bg-orange-800 transition shadow-sm cursor-pointer whitespace-nowrap">
+                        <span wire:loading.remove wire:target="runAction('perms')">FIX PERMS</span>
+                        <span wire:loading wire:target="runAction('perms')">WORKING...</span>
+                    </button>
+                    <div
+                        class="absolute bottom-full mb-2 hidden md:group-hover:block w-64 p-2 bg-zinc-900 text-[10px] text-zinc-400 font-mono rounded-lg shadow-xl border border-zinc-700 z-50">
+                        <p class="text-blue-400 mb-1 font-bold">// Commands:</p>
+                        sudo chown -R www-data:www-data<br>
+                        sudo find . -type d -exec chmod 775<br>
+                        sudo find . -type f -exec chmod 664
+                    </div>
+                </div>
+
+                <div class="group relative w-full md:w-auto">
+                    <button wire:click="runAction('pull')" wire:loading.attr="disabled"
+                        class="w-full md:w-auto px-3 py-1.5 md:px-4 md:py-2 bg-zinc-800 dark:bg-white dark:text-zinc-900 text-white rounded-xl text-[10px] md:text-xs font-bold hover:opacity-90 transition shadow-sm cursor-pointer whitespace-nowrap">
+                        <span wire:loading.remove wire:target="runAction('pull')">GIT PULL</span>
+                        <span wire:loading wire:target="runAction('pull')">PULLING...</span>
+                    </button>
+                    <div
+                        class="absolute bottom-full right-0 mb-2 hidden md:group-hover:block w-48 p-2 bg-zinc-900 text-[10px] text-zinc-400 font-mono rounded-lg shadow-xl border border-zinc-700 z-50">
+                        <p class="text-green-400 mb-1 font-bold">// Commands:</p>
+                        git pull origin main<br>
+                        php artisan optimize:clear
+                    </div>
                 </div>
             </div>
         </div>
     </header>
 
-    <div wire:poll.2s="updateStats" class="grid grid-cols-5 gap-6">
+    <div wire:poll.2s="updateStats" class="grid grid-cols-1 md:grid-cols-5 gap-6">
 
         <div class="col-span-2 p-6 bg-orange-50 rounded-3xl border border-orange-100 shadow-sm">
             <p class="text-gray-500 text-xs font-bold uppercase tracking-widest mb-1">CPU Load</p>
@@ -230,7 +233,7 @@ new class extends Component
                 </div>
             </div>
 
-            <div wire:ignore class="bg-white rounded-2xl p-4 shadow-inner" style="height: 150;">
+            <div wire:ignore class="bg-white rounded-2xl p-4 shadow-inner" style="height: 150px;">
                 <canvas id="cpuChart"></canvas>
             </div>
         </div>
@@ -242,7 +245,7 @@ new class extends Component
                 <span class="text-2xl font-bold text-[#E3833C] ml-2">%</span>
             </div>
 
-            <div wire:ignore class="bg-white rounded-2xl p-4 shadow-inner" style="height: 150;">
+            <div wire:ignore class="bg-white rounded-2xl p-4 shadow-inner" style="height: 150px;">
                 <canvas id="ramChart"></canvas>
             </div>
         </div>

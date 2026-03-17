@@ -27,7 +27,7 @@
 </style>
 </head>
 
-<body class="h-full overflow-hidden text-white antialiased">
+<body class="h-full text-white antialiased">
 
     {{ $slot }}
 
