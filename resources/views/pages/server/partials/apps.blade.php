@@ -32,41 +32,61 @@
     <div class="flex flex-col gap-4">
         <div class="grid grid-cols-2 gap-4">
             <div
-                class="bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-gray-100 dark:border-zinc-700 shadow-sm flex items-center justify-between">
-                <div>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase">Docker Status</p>
-                    <p class="text-2xl font-black text-gray-900">{{ $activeContainers }} <span
-                            class="text-sm font-normal text-gray-500">Containers</span></p>
+                class="bg-white dark:bg-zinc-800 rounded-2xl border border-gray-100 dark:border-zinc-700 overflow-hidden shadow-sm">
+                <div class="p-4 border-b border-gray-50 dark:border-zinc-700 bg-orange-50 dark:bg-zinc-800/50">
+                    <h3 class="text-xs font-bold dark:text-white uppercase tracking-wider text-zinc-800">Docker Status
+                    </h3>
                 </div>
-                <div class="p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-xl">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-width="2"
-                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                    </svg>
+                <div
+                    class="bg-white dark:bg-zinc-800 p-4 rounded-2xl border border-gray-100 dark:border-zinc-700 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-2xl font-black text-gray-900">{{ $activeContainers }} <span
+                                class="text-sm font-normal text-gray-500">Containers</span></p>
+                    </div>
+                    <div class="p-3 bg-orange-50 dark:bg-blue-900/20 text-orange-600 rounded-xl">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-width="2"
+                                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
+                    </div>
                 </div>
             </div>
 
             <div
-                class="bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-gray-100 dark:border-zinc-700 shadow-sm flex items-center justify-between">
-                <div>
-                    <div class="text-gray-800">Up:</div>
-                    <div class="flex items-baseline gap-1">
-                        <span class="text-2xl font-black text-gray-900 tabular-nums">{{ $upValue }}</span>
-                        <span class="text-[10px] font-bold text-gray-400 lowercase">{{ $upUnit }}</span>
-                    </div>
+                class="bg-white dark:bg-zinc-800 rounded-2xl border border-gray-100 dark:border-zinc-700 overflow-hidden shadow-sm">
+                <div class="p-4 border-b border-gray-50 dark:border-zinc-700 bg-orange-50 dark:bg-zinc-800/50">
+                    <h3 class="text-xs font-bold dark:text-white uppercase tracking-wider text-zinc-800">Network Speed
+                    </h3>
                 </div>
-                <div class="text-gray-800">Down:
-                    <div class="flex items-baseline gap-1">
-                        <span class="text-2xl font-black text-gray-900 tabular-nums">{{ $downValue }}</span>
-                        <span class="text-[10px] font-bold text-gray-400 lowercase">{{ $downUnit }}</span>
+                <div class="flex justify-between items-center p-4">
+                    <div>
+                        <div class="text-gray-800 text-xs">Up:</div>
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-2xl font-black text-gray-900 tabular-nums">{{ $upValue }}</span>
+                            <span class="text-[10px] font-bold text-gray-400 lowercase">{{ $upUnit }}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-gray-800 text-xs">Down:</div>
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-2xl font-black text-gray-900 tabular-nums">{{ $downValue }}</span>
+                            <span class="text-[10px] font-bold text-gray-400 lowercase">{{ $downUnit }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-gray-100 dark:border-zinc-700 shadow-sm">
-            <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">System Uptime</p>
-            <p class="text-xl font-black text-gray-900">{{ $uptime }}</p>
+        <div
+            class="bg-white dark:bg-zinc-800 rounded-2xl border border-gray-100 dark:border-zinc-700 overflow-hidden shadow-sm">
+            <div class="p-4 border-b border-gray-50 dark:border-zinc-700 bg-orange-50 dark:bg-zinc-800/50">
+                <h3 class="text-xs font-bold dark:text-white uppercase tracking-wider text-zinc-800">System Uptime
+                </h3>
+            </div>
+            <div
+                class="bg-white dark:bg-zinc-800 p-4 rounded-2xl border border-gray-100 dark:border-zinc-700 shadow-sm">
+                <p class="text-xl font-black text-gray-900">{{ $uptime }}</p>
+            </div>
         </div>
     </div>
 </div>

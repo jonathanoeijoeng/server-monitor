@@ -35,6 +35,12 @@ new class extends Component
             'path' => '/var/www/portfolio',
             'url'  => 'https://hellojonathan.my.id',
             'status' => 'checking...'
+        ],
+        'server-monitor' => [
+            'name' => 'Server Monitor',
+            'path' => '/var/www/server-monitor',
+            'url'  => 'https://server-monitor.hellojonathan.my.id',
+            'status' => 'checking...'
         ]
     ];
 
@@ -167,7 +173,7 @@ new class extends Component
             <div class="flex items-center gap-2">
                 <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Target App:</span>
                 <select wire:model.live="selectedApp"
-                    class="bg-transparent border-none p-0 text-sm font-bold text-orange-600 focus:ring-0 cursor-pointer">
+                    class="bg-transparent border-none p-1 text-sm font-bold text-orange-600 focus:ring-0 cursor-pointer focus:outline-orange-200 rounded">
                     @foreach($apps as $key => $app)
                     <option value="{{ $key }}">{{ $app['name'] }}</option>
                     @endforeach
@@ -175,7 +181,7 @@ new class extends Component
             </div>
             <div class="group relative">
                 <button wire:click="runAction('perms')" wire:loading.attr="disabled"
-                    class="px-4 py-2 bg-orange-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition shadow-sm cursor-pointer">
+                    class="px-4 py-2 bg-orange-600 text-white rounded-xl text-xs font-bold hover:bg-orange-800 transition shadow-sm cursor-pointer">
                     <span wire:loading.remove wire:target="runAction('perms')">FIX PERMISSION</span>
                     <span wire:loading wire:target="runAction('perms')">WORKING...</span>
                 </button>
