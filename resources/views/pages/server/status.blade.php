@@ -19,6 +19,7 @@ new class extends Component
     public $upUnit = "kb/s";
     private $storageKey = 'network_stats';
     
+    
     public $selectedApp = 'expense-tracker';
     public $lastCommandOutput = '';
 
@@ -36,6 +37,22 @@ new class extends Component
             'status' => 'checking...'
         ]
     ];
+
+    private function formatBytes($bytes, $precision = 1) {
+        if ($bytes < 1024) return $bytes . ' B';
+        if ($bytes < 1048576) return round($bytes / 1024, $precision) . ' KB';
+        return round($bytes / 1048576, $precision) . ' MB';
+    }
+
+private function splitBytes($bytes) {
+    if ($bytes < 1024) {
+        return ['value' => number_format($bytes, 0), 'unit' => 'B'];
+    }
+    if ($bytes < 1048576) {
+        return ['value' => number_format($bytes / 1024, 1), 'unit' => 'KB'];
+    }
+    return ['value' => number_format($bytes / 1048576, 1), 'unit' => 'MB'];
+}
 
     public function mount()
     {
