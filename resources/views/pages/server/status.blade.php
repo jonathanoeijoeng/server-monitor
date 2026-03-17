@@ -21,7 +21,7 @@ new class extends Component
         'expense-tracker' => [
             'name' => 'Expenses Tracker',
             'path' => '/var/www/expense-tracker',
-            'url'  => 'https://tracker.hellojonathan.my.id',
+            'url'  => 'https://expense.hellojonathan.my.id',
             'status' => 'checking...'
         ],
         'portfolio' => [
@@ -42,6 +42,7 @@ new class extends Component
         if (PHP_OS_FAMILY !== 'Darwin') {
             // Ubuntu NUC Stats
             $this->cpuUsage = (int) shell_exec("top -bn1 | grep \"Cpu(s)\" | sed \"s/.*, *\\([0-9.]*\\)%* id.*/\\1/\" | awk '{print 100 - $1}'");
+            $this->dispatch('cpu-updated', cpu: $this->cpuUsage);
             $this->ramUsage = (int) shell_exec("free | grep Mem | awk '{print $3/$2 * 100.0}'");
             
             // Disk Space & Free GB
@@ -54,6 +55,7 @@ new class extends Component
         } else {
             // Mac Mock for testing
             $this->cpuUsage = 12.5; $this->ramUsage = 65.0; $this->diskUsage = 40; $this->diskFreeGB = 450.5;
+            $this->dispatch('cpu-updated', cpu: $this->cpuUsage);
             $this->uptime = 'up 2 hours, 30 minutes'; $this->activeContainers = 3;
         }
 
@@ -92,31 +94,31 @@ new class extends Component
 
     public function render()
     {
-        return $this->view()->layout('layouts.app', ['title' => 'Server Monitor']);
+        return $this->view()->layout('layouts.fullscreen');
     }
 } ?>
 
-<div wire:poll.15s="updateStats" class="min-h-screen bg-gray-50 dark:bg-zinc-900 p-8 mt-6">
-    <div class="max-w-6xl mx-auto">
+<div wire:poll.1s="updateStats" class="min-h-screen bg-gray-50 dark:bg-zinc-900 p-20">
+    <div class="max-w=full mx-auto">
         <header
             class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 pb-4 border-b border-zinc-200 dark:border-zinc-800">
             <div>
                 <h1 class="text-3xl font-extrabold text-gray-800 dark:text-white tracking-tight">System Monitor</h1>
-                <div class="mt-2 flex items-center gap-2">
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Target App:</span>
+            </div>
+
+            <div class="flex gap-3 items-center">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Target App:</span>
                     <select wire:model.live="selectedApp"
-                        class="bg-transparent border-none p-0 text-sm font-bold text-blue-600 focus:ring-0 cursor-pointer">
+                        class="bg-transparent border-none p-0 text-sm font-bold text-orange-600 focus:ring-0 cursor-pointer">
                         @foreach($apps as $key => $app)
                         <option value="{{ $key }}">{{ $app['name'] }}</option>
                         @endforeach
                     </select>
                 </div>
-            </div>
-
-            <div class="flex gap-3">
                 <div class="group relative">
                     <button wire:click="runAction('perms')" wire:loading.attr="disabled"
-                        class="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition shadow-sm cursor-pointer">
+                        class="px-4 py-2 bg-orange-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition shadow-sm cursor-pointer">
                         <span wire:loading.remove wire:target="runAction('perms')">FIX PERMISSION</span>
                         <span wire:loading wire:target="runAction('perms')">WORKING...</span>
                     </button>
@@ -269,4 +271,106 @@ new class extends Component
             </div>
         </div>
     </div>
+    <div class="grid flex-1 grid-cols-1 md:grid-cols-2 gap-6">
+
+        <div class="flex flex-col justify-between rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-2xl border border-gray-700"
+            x-data="cpuChartComponent()" x-init="initChart()" @cpu-updated.window="updateChart($event.detail.cpu)">
+
+            <div class="flex items-center justify-between mb-2">
+                <h2 class="text-gray-400 text-sm font-medium uppercase">CPU Load History</h2>
+                <div class="flex items-baseline text-zinc-800">
+                    <span class="text-5xl font-black tracking-tighter" x-text="currentCpu">0</span>
+                    <span class="text-2xl font-bold text-gray-500 ml-1">%</span>
+                </div>
+            </div>
+
+            <div class="flex-1 min-h-[200px] relative">
+                <canvas id="cpuChart"></canvas>
+            </div>
+        </div>
+
+        <div
+            class="flex flex-col justify-center rounded-2xl bg-white dark:bg-gray-800 p-8 shadow-2xl border border-gray-700">
+            <h2 class="text-gray-400 text-sm font-medium uppercase mb-2">Memory Usage</h2>
+            <div class="flex items-baseline text-white">
+                <span class="text-8xl font-black tracking-tighter text-emerald-400">{{ $ramUsage }}</span>
+                <span class="text-4xl font-bold text-gray-500 ml-2">%</span>
+            </div>
+        </div>
+    </div>
+    <script>
+        function cpuChartComponent() {
+            return {
+                currentCpu: 0,
+                chart: null,
+                MAX_DATA_POINTS: 30, // Menampilkan 30 data poin terakhir (~1 menit)
+
+                initChart() {
+                    const ctx = document.getElementById('cpuChart').getContext('2d');
+                    
+                    // Membuat Gradient Fill agar terlihat mewah
+                    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                    gradient.addColorStop(0, 'rgba(59, 130, 246, 0.5)'); // Blue-500 semi-transparent
+                    gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');   // Transparent
+
+                    this.chart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: Array(this.MAX_DATA_POINTS).fill(''), // Label kosong
+                            datasets: [{
+                                label: 'CPU Load',
+                                data: Array(this.MAX_DATA_POINTS).fill(0), // Data awal 0
+                                borderColor: '#3b82f6', // Blue-500
+                                borderWidth: 3,
+                                fill: true,
+                                backgroundColor: gradient,
+                                tension: 0.4, // Membuat garis melengkung halus
+                                pointRadius: 0, // Sembunyikan titik poin agar bersih
+                                pointHoverRadius: 5
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            animation: {
+                                duration: 1000 // Animasi pergerakan grafik (1 detik)
+                            },
+                            scales: {
+                                y: {
+                                    min: 0,
+                                    max: 100, // Skala 0-100%
+                                    ticks: { color: '#6b7280', stepSize: 25 }, // Gray-500
+                                    grid: { color: 'rgba(75, 85, 99, 0.2)' } // Gray-700 faint
+                                },
+                                x: {
+                                    display: false // Sembunyikan label X agar bersih
+                                }
+                            },
+                            plugins: {
+                                legend: { display: false }, // Sembunyikan legenda
+                                tooltip: { enabled: true }
+                            }
+                        }
+                    });
+                },
+
+                updateChart(cpuValue) {
+                    this.currentCpu = cpuValue;
+                    
+                    if (!this.chart) return;
+
+                    // Menambahkan data baru di akhir
+                    this.chart.data.datasets[0].data.push(cpuValue);
+
+                    // Menghapus data paling awal jika melebihi batas
+                    if (this.chart.data.datasets[0].data.length > this.MAX_DATA_POINTS) {
+                        this.chart.data.datasets[0].data.shift();
+                    }
+
+                    // Update grafik tanpa membuat ulang objek
+                    this.chart.update('none'); // 'none' untuk performa terbaik, animasi ditangani config utama
+                }
+            }
+        }
+    </script>
 </div>
