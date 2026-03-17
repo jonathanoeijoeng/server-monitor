@@ -18,6 +18,7 @@ new class extends Component
     public $upValue = "0";
     public $upUnit = "kb/s";
     private $storageKey = 'network_stats';
+    public $dockerStats = '0 / 0';
     
     
     public $selectedApp = 'expense-tracker';
@@ -85,13 +86,24 @@ new class extends Component
             $this->downloadSpeed = $this->formatBytes($downBps) . '/s';
             $this->uploadSpeed = $this->formatBytes($upBps) . '/s';
 
-            $response = shell_exec("curl --unix-socket /var/run/docker.sock http://localhost/containers/json");
-    
+            // Tambahkan ?all=true pada URL
+            $response = shell_exec("curl --unix-socket /var/run/docker.sock http://localhost/containers/json?all=true");
+
             if ($response) {
                 $containers = json_decode($response, true);
-                $this->activeContainers = is_array($containers) ? count($containers) : 0;
+                if (is_array($containers)) {
+                    $total = count($containers);
+                    // Filter hanya yang statusnya 'running'
+                    $running = count(array_filter($containers, function($container) {
+                        return $container['State'] === 'running';
+                    }));
+
+                    $this->dockerStats = "{$running} / {$total}";
+                } else {
+                    $this->dockerStats = "0 / 0";
+                }
             } else {
-                $this->activeContainers = 0;
+                $this->dockerStats = "Error";
             }
         } else {
             // Mac Mock for testing
@@ -101,6 +113,7 @@ new class extends Component
             $this->diskFreeGB = 65;
             $this->diskUsage = 35; // 35% terpakai
             $this->uptime = 'up 2 hours, 30 minutes'; $this->activeContainers = 3;
+            $this->dockerStats = "10 / 12";
 
             $downBps = rand(50000, 1500000); 
             $upBps = rand(10000, 300000);
@@ -165,15 +178,24 @@ new class extends Component
 <div class="w-full mx-auto bg-white p-4 md:p-12 min-h-screen overflow-y-auto">
     <header
         class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4 pb-4 border-b border-zinc-200 dark:border-zinc-800">
-        <div class="flex items-center gap-3">
-            <h1 class="text-3xl font-extrabold text-gray-800 dark:text-white tracking-tight leading-none">
-                System Monitor
-            </h1>
+        <div class="flex items-center gap-3 group">
+            <a href="https://hellojonathan.my.id"
+                class="flex items-center gap-3 transition-opacity hover:opacity-80 cursor-pointer">
 
-            <span class="relative flex h-3 w-3 mt-1">
-                <span
-                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                <h1 class="text-3xl font-extrabold text-gray-800 dark:text-white tracking-tight leading-none">
+                    System Monitor
+                </h1>
+
+                <span class="relative flex h-3 w-3 mt-1">
+                    <span
+                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                </span>
+            </a>
+
+            <span
+                class="hidden md:block text-[10px] font-bold text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest">
+                &larr; Back to HelloJonathan
             </span>
         </div>
 

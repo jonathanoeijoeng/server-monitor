@@ -39,9 +39,9 @@
                 </div>
                 <div
                     class="bg-white dark:bg-zinc-800 p-4 rounded-2xl border border-gray-100 dark:border-zinc-700 shadow-sm flex items-center justify-between">
-                    <div>
-                        <p class="text-2xl font-black text-gray-900">{{ $activeContainers }} <span
-                                class="text-sm font-normal text-gray-500">Containers</span></p>
+                    <div class="flex gap-2 items-baseline">
+                        <div class="text-2xl font-black text-gray-900">{{ $dockerStats }}</div>
+                        <div class="text-sm font-normal text-gray-500"> Containers</div>
                     </div>
                     <div class="p-3 bg-orange-50 dark:bg-blue-900/20 text-orange-600 rounded-xl">
                         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
