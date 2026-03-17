@@ -1,4 +1,4 @@
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-6">
     <div
         class="lg:col-span-2 bg-white dark:bg-zinc-800 rounded-2xl border border-gray-100 dark:border-zinc-700 overflow-hidden shadow-sm">
         <div
@@ -29,7 +29,7 @@
     </div>
 
 
-    <div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-4">
         <div class="grid grid-cols-2 gap-4">
             <div
                 class="bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-gray-100 dark:border-zinc-700 shadow-sm flex items-center justify-between">
