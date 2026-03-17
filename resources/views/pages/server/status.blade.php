@@ -54,10 +54,19 @@ new class extends Component
             $this->activeContainers = (int) shell_exec("docker ps -q | wc -l");
         } else {
             // Mac Mock for testing
-            $this->cpuUsage = 12.5; $this->ramUsage = 65.0; $this->diskUsage = 40; $this->diskFreeGB = 450.5;
-            $this->dispatch('cpu-updated', cpu: $this->cpuUsage);
+            $this->cpuUsage = rand(10, 90);
+            $this->ramUsage = rand(20, 80);
+            $this->diskFreeGB = 65;
+            $this->diskUsage = 35; // 35% terpakai
             $this->uptime = 'up 2 hours, 30 minutes'; $this->activeContainers = 3;
         }
+
+        $this->dispatch('stats-updated', 
+            cpu: $this->cpuUsage, 
+            ram: $this->ramUsage,
+            diskUsed: $this->diskUsage,
+            diskFree: $this->diskFreeGB
+        );
 
         // App Health Check
         foreach ($this->apps as $key => $app) {
@@ -98,279 +107,242 @@ new class extends Component
     }
 } ?>
 
-<div wire:poll.1s="updateStats" class="min-h-screen bg-gray-50 dark:bg-zinc-900 p-20">
-    <div class="max-w=full mx-auto">
-        <header
-            class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 pb-4 border-b border-zinc-200 dark:border-zinc-800">
-            <div>
-                <h1 class="text-3xl font-extrabold text-gray-800 dark:text-white tracking-tight">System Monitor</h1>
-            </div>
-
-            <div class="flex gap-3 items-center">
-                <div class="flex items-center gap-2">
-                    <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Target App:</span>
-                    <select wire:model.live="selectedApp"
-                        class="bg-transparent border-none p-0 text-sm font-bold text-orange-600 focus:ring-0 cursor-pointer">
-                        @foreach($apps as $key => $app)
-                        <option value="{{ $key }}">{{ $app['name'] }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="group relative">
-                    <button wire:click="runAction('perms')" wire:loading.attr="disabled"
-                        class="px-4 py-2 bg-orange-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition shadow-sm cursor-pointer">
-                        <span wire:loading.remove wire:target="runAction('perms')">FIX PERMISSION</span>
-                        <span wire:loading wire:target="runAction('perms')">WORKING...</span>
-                    </button>
-                    <div
-                        class="absolute bottom-full mb-2 hidden group-hover:block w-64 p-2 bg-zinc-900 text-[10px] text-zinc-400 font-mono rounded-lg shadow-xl border border-zinc-700 z-50">
-                        <p class="text-blue-400 mb-1 font-bold">// Commands:</p>
-                        sudo chown -R www-data:www-data<br>
-                        sudo find . -type d -exec chmod 775<br>
-                        sudo find . -type f -exec chmod 664
-                    </div>
-                </div>
-
-                <div class="group relative">
-                    <button wire:click="runAction('pull')" wire:loading.attr="disabled"
-                        class="px-4 py-2 bg-zinc-800 dark:bg-white dark:text-zinc-900 text-white rounded-xl text-xs font-bold hover:opacity-90 transition shadow-sm cursor-pointer">
-                        <span wire:loading.remove wire:target="runAction('pull')">GIT PULL</span>
-                        <span wire:loading wire:target="runAction('pull')">PULLING...</span>
-                    </button>
-                    <div
-                        class="absolute bottom-full right-0 mb-2 hidden group-hover:block w-48 p-2 bg-zinc-900 text-[10px] text-zinc-400 font-mono rounded-lg shadow-xl border border-zinc-700 z-50">
-                        <p class="text-green-400 mb-1 font-bold">// Commands:</p>
-                        git pull origin main<br>
-                        php artisan optimize:clear
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        @if($lastCommandOutput)
-        <div
-            class="mb-6 p-4 rounded-xl bg-zinc-950 text-green-400 text-[11px] font-mono border border-zinc-800 shadow-xl overflow-x-auto whitespace-pre">
-            <div class="flex gap-1.5 mb-2 opacity-50">
-                <div class="w-2.5 h-2.5 rounded-full bg-red-500"></div>
-                <div class="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
-                <div class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
-            </div>
-            {{ $lastCommandOutput }}
-        </div>
-        @endif
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div
-                class="bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-gray-100 dark:border-zinc-700 shadow-sm">
-                <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">CPU Load</p>
-                <div class="flex items-baseline justify-between gap-2">
-                    <div class="flex items-baseline gap-2">
-                        <p class="text-4xl font-black dark:text-white">{{ number_format($cpuUsage, 1, ',', '.') }}%</p>
-                        <span class="text-[10px] font-bold text-gray-500">{{ $cpuTemp }}°C</span>
-                    </div>
-                    <span
-                        class="text-[10px] font-bold uppercase px-2 py-0.5 rounded {{ $cpuUsage > 85 ? 'bg-red-100 text-red-600' : ($cpuUsage > 60 ? 'bg-yellow-100 text-yellow-600' : 'bg-green-100 text-green-600') }}">
-                        {{ $cpuUsage > 85 ? 'Critical' : ($cpuUsage > 60 ? 'Warning' : 'Healthy') }}
-                    </span>
-                </div>
-                <div class="w-full bg-gray-100 dark:bg-zinc-700 h-2 rounded-full mt-4 overflow-hidden">
-                    <div class="h-full transition-all duration-700 {{ $cpuUsage > 85 ? 'bg-red-500' : ($cpuUsage > 60 ? 'bg-yellow-400' : 'bg-green-500') }}"
-                        style="width: {{ $cpuUsage }}%"></div>
-                </div>
-            </div>
-
-            <div
-                class="bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-gray-100 dark:border-zinc-700 shadow-sm">
-                <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Memory Usage</p>
-                <div class="flex items-baseline justify-between gap-2">
-                    <p class="text-4xl font-black dark:text-white">{{ number_format($ramUsage, 1, ',', '.') }}%</p>
-                    <span
-                        class="text-[10px] font-bold uppercase px-2 py-0.5 rounded {{ $ramUsage > 90 ? 'bg-red-100 text-red-600' : ($ramUsage > 70 ? 'bg-yellow-100 text-yellow-600' : 'bg-green-100 text-green-600') }}">
-                        {{ $ramUsage > 90 ? 'Critical' : ($ramUsage > 70 ? 'Warning' : 'Healthy') }}
-                    </span>
-                </div>
-                <div class="w-full bg-gray-100 dark:bg-zinc-700 h-2 rounded-full mt-4 overflow-hidden">
-                    <div class="h-full transition-all duration-700 {{ $ramUsage > 90 ? 'bg-red-500' : ($ramUsage > 70 ? 'bg-yellow-400' : 'bg-green-500') }}"
-                        style="width: {{ $ramUsage }}%"></div>
-                </div>
-            </div>
-
-            <div
-                class="bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-gray-100 dark:border-zinc-700 shadow-sm">
-                <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Disk Space</p>
-                <div class="flex items-baseline justify-between gap-2">
-                    <div class="flex items-baseline gap-2">
-                        <p class="text-4xl font-black dark:text-white">{{ $diskUsage }}%</p>
-                        <span class="text-[10px] text-gray-400 font-mono    ">Free: {{ number_format($diskFreeGB, 1,
-                            ',', '.') }} GB</span>
-                    </div>
-                    <span
-                        class="text-[10px] font-bold uppercase px-2 py-0.5 rounded {{ $diskUsage > 90 ? 'bg-red-100 text-red-600' : ($diskUsage > 80 ? 'bg-yellow-100 text-yellow-600' : 'bg-green-100 text-green-600') }}">
-                        {{ $diskUsage > 90 ? 'Full' : ($diskUsage > 80 ? 'Warning' : 'Healthy') }}
-                    </span>
-                </div>
-                <div class="w-full bg-gray-100 dark:bg-zinc-700 h-2 rounded-full mt-4 overflow-hidden">
-                    <div class="h-full bg-emerald-500 transition-all duration-700" style="width: {{ $diskUsage }}%">
-                    </div>
-                </div>
-            </div>
+<div class="w-full mx-auto bg-white p-12">
+    <header
+        class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 pb-4 border-b border-zinc-200 dark:border-zinc-800">
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-800 dark:text-white tracking-tight">System Monitor</h1>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div
-                class="lg:col-span-2 bg-white dark:bg-zinc-800 rounded-2xl border border-gray-100 dark:border-zinc-700 overflow-hidden shadow-sm">
-                <div
-                    class="p-4 border-b border-gray-50 dark:border-zinc-700 bg-gray-50/50 dark:bg-zinc-800/50 flex justify-between items-center">
-                    <h3 class="text-xs font-bold dark:text-white uppercase tracking-wider">Application Health</h3>
-                    <span class="text-[10px] text-gray-400">Polling: 15s</span>
-                </div>
-                <div class="divide-y divide-gray-50 dark:divide-zinc-700">
-                    @foreach($apps as $app)
-                    <div
-                        class="p-4 flex justify-between items-center hover:bg-gray-50 dark:hover:bg-zinc-700/30 transition">
-                        <div class="flex flex-col">
-                            <span class="font-bold text-gray-800 dark:text-zinc-200">{{ $app['name'] }}</span>
-                            <span class="text-[10px] text-gray-400 font-mono">{{ str_replace(['https://', 'http://'],
-                                '', $app['url']) }}</span>
-                        </div>
-                        <div
-                            class="flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700">
-                            <span
-                                class="flex h-2 w-2 rounded-full {{ $app['status'] === 'online' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-red-500 animate-pulse' }}"></span>
-                            <span
-                                class="text-[10px] font-black uppercase {{ $app['status'] === 'online' ? 'text-green-600' : 'text-red-600' }}">
-                                {{ $app['status'] }}
-                            </span>
-                        </div>
-                    </div>
+        <div class="flex gap-3 items-center">
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Target App:</span>
+                <select wire:model.live="selectedApp"
+                    class="bg-transparent border-none p-0 text-sm font-bold text-orange-600 focus:ring-0 cursor-pointer">
+                    @foreach($apps as $key => $app)
+                    <option value="{{ $key }}">{{ $app['name'] }}</option>
                     @endforeach
+                </select>
+            </div>
+            <div class="group relative">
+                <button wire:click="runAction('perms')" wire:loading.attr="disabled"
+                    class="px-4 py-2 bg-orange-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition shadow-sm cursor-pointer">
+                    <span wire:loading.remove wire:target="runAction('perms')">FIX PERMISSION</span>
+                    <span wire:loading wire:target="runAction('perms')">WORKING...</span>
+                </button>
+                <div
+                    class="absolute bottom-full mb-2 hidden group-hover:block w-64 p-2 bg-zinc-900 text-[10px] text-zinc-400 font-mono rounded-lg shadow-xl border border-zinc-700 z-50">
+                    <p class="text-blue-400 mb-1 font-bold">// Commands:</p>
+                    sudo chown -R www-data:www-data<br>
+                    sudo find . -type d -exec chmod 775<br>
+                    sudo find . -type f -exec chmod 664
                 </div>
             </div>
 
-            <div class="flex flex-col gap-6">
+            <div class="group relative">
+                <button wire:click="runAction('pull')" wire:loading.attr="disabled"
+                    class="px-4 py-2 bg-zinc-800 dark:bg-white dark:text-zinc-900 text-white rounded-xl text-xs font-bold hover:opacity-90 transition shadow-sm cursor-pointer">
+                    <span wire:loading.remove wire:target="runAction('pull')">GIT PULL</span>
+                    <span wire:loading wire:target="runAction('pull')">PULLING...</span>
+                </button>
                 <div
-                    class="bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-gray-100 dark:border-zinc-700 shadow-sm flex items-center justify-between">
-                    <div>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase">Docker Status</p>
-                        <p class="text-2xl font-black dark:text-white">{{ $activeContainers }} <span
-                                class="text-sm font-normal text-gray-500">Containers</span></p>
-                    </div>
-                    <div class="p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-xl">
-                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-width="2"
-                                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                        </svg>
-                    </div>
-                </div>
-
-                <div
-                    class="bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-gray-100 dark:border-zinc-700 shadow-sm">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">System Uptime</p>
-                    <p class="text-xl font-black dark:text-white">{{ $uptime }}</p>
+                    class="absolute bottom-full right-0 mb-2 hidden group-hover:block w-48 p-2 bg-zinc-900 text-[10px] text-zinc-400 font-mono rounded-lg shadow-xl border border-zinc-700 z-50">
+                    <p class="text-green-400 mb-1 font-bold">// Commands:</p>
+                    git pull origin main<br>
+                    php artisan optimize:clear
                 </div>
             </div>
         </div>
-    </div>
-    <div class="grid flex-1 grid-cols-1 md:grid-cols-2 gap-6">
+    </header>
 
-        <div class="flex flex-col justify-between rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-2xl border border-gray-700"
-            x-data="cpuChartComponent()" x-init="initChart()" @cpu-updated.window="updateChart($event.detail.cpu)">
+    <div wire:poll.2s="updateStats" class="grid grid-cols-5 gap-6">
 
-            <div class="flex items-center justify-between mb-2">
-                <h2 class="text-gray-400 text-sm font-medium uppercase">CPU Load History</h2>
-                <div class="flex items-baseline text-zinc-800">
-                    <span class="text-5xl font-black tracking-tighter" x-text="currentCpu">0</span>
-                    <span class="text-2xl font-bold text-gray-500 ml-1">%</span>
-                </div>
+        <div class="col-span-2 p-6 bg-orange-50 rounded-3xl border border-orange-100 shadow-sm">
+            <p class="text-gray-500 text-xs font-bold uppercase tracking-widest mb-1">CPU Load</p>
+            <div class="flex items-baseline mb-4">
+                <h1 class="text-6xl font-black text-gray-900">{{ $cpuUsage }}</h1>
+                <span class="text-2xl font-bold text-[#E3833C] ml-2">%</span>
             </div>
 
-            <div class="flex-1 min-h-[200px] relative">
+            <div wire:ignore class="bg-white rounded-2xl p-4 shadow-inner" style="height: 300px;">
                 <canvas id="cpuChart"></canvas>
             </div>
         </div>
 
-        <div
-            class="flex flex-col justify-center rounded-2xl bg-white dark:bg-gray-800 p-8 shadow-2xl border border-gray-700">
-            <h2 class="text-gray-400 text-sm font-medium uppercase mb-2">Memory Usage</h2>
-            <div class="flex items-baseline text-white">
-                <span class="text-8xl font-black tracking-tighter text-emerald-400">{{ $ramUsage }}</span>
-                <span class="text-4xl font-bold text-gray-500 ml-2">%</span>
+        <div class="col-span-2 p-6 bg-orange-50 rounded-3xl border border-orange-100 shadow-sm">
+            <p class="text-gray-500 text-xs font-bold uppercase tracking-widest mb-1">RAM Usage</p>
+            <div class="flex items-baseline mb-4">
+                <h1 class="text-6xl font-black text-gray-900">{{ $ramUsage }}</h1>
+                <span class="text-2xl font-bold text-[#E3833C] ml-2">%</span>
+            </div>
+
+            <div wire:ignore class="bg-white rounded-2xl p-4 shadow-inner" style="height: 300px;">
+                <canvas id="ramChart"></canvas>
             </div>
         </div>
+
+        <div class="p-6 bg-orange-50 rounded-3xl border border-orange-100 shadow-sm">
+            <p class="text-gray-500 text-xs font-bold uppercase tracking-widest mb-1">Disk Storage</p>
+            <div class="flex items-baseline mb-4">
+                <h1 class="text-6xl font-black text-gray-900">{{ $diskUsage }}</h1>
+                <span class="text-2xl font-bold text-[#E3833C] ml-2">% Used</span>
+            </div>
+
+            <div wire:ignore class="bg-white rounded-2xl p-4 shadow-inner flex justify-center" style="height: 300px;">
+                <canvas id="diskChart"></canvas>
+            </div>
+        </div>
+
     </div>
-    <script>
-        function cpuChartComponent() {
-            return {
-                currentCpu: 0,
-                chart: null,
-                MAX_DATA_POINTS: 30, // Menampilkan 30 data poin terakhir (~1 menit)
 
-                initChart() {
-                    const ctx = document.getElementById('cpuChart').getContext('2d');
-                    
-                    // Membuat Gradient Fill agar terlihat mewah
-                    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-                    gradient.addColorStop(0, 'rgba(59, 130, 246, 0.5)'); // Blue-500 semi-transparent
-                    gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');   // Transparent
+    @include('pages.server.partials.apps')
 
-                    this.chart = new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: Array(this.MAX_DATA_POINTS).fill(''), // Label kosong
-                            datasets: [{
-                                label: 'CPU Load',
-                                data: Array(this.MAX_DATA_POINTS).fill(0), // Data awal 0
-                                borderColor: '#3b82f6', // Blue-500
-                                borderWidth: 3,
-                                fill: true,
-                                backgroundColor: gradient,
-                                tension: 0.4, // Membuat garis melengkung halus
-                                pointRadius: 0, // Sembunyikan titik poin agar bersih
-                                pointHoverRadius: 5
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            animation: {
-                                duration: 1000 // Animasi pergerakan grafik (1 detik)
-                            },
-                            scales: {
-                                y: {
-                                    min: 0,
-                                    max: 100, // Skala 0-100%
-                                    ticks: { color: '#6b7280', stepSize: 25 }, // Gray-500
-                                    grid: { color: 'rgba(75, 85, 99, 0.2)' } // Gray-700 faint
-                                },
-                                x: {
-                                    display: false // Sembunyikan label X agar bersih
-                                }
-                            },
-                            plugins: {
-                                legend: { display: false }, // Sembunyikan legenda
-                                tooltip: { enabled: true }
-                            }
-                        }
-                    });
-                },
-
-                updateChart(cpuValue) {
-                    this.currentCpu = cpuValue;
-                    
-                    if (!this.chart) return;
-
-                    // Menambahkan data baru di akhir
-                    this.chart.data.datasets[0].data.push(cpuValue);
-
-                    // Menghapus data paling awal jika melebihi batas
-                    if (this.chart.data.datasets[0].data.length > this.MAX_DATA_POINTS) {
-                        this.chart.data.datasets[0].data.shift();
-                    }
-
-                    // Update grafik tanpa membuat ulang objek
-                    this.chart.update('none'); // 'none' untuk performa terbaik, animasi ditangani config utama
-                }
-            }
-        }
-    </script>
 </div>
+
+<script>
+    let cpuChart = null;
+    let ramChart = null;
+    let diskChart = null;
+    const mainColor = '#E3833C';
+
+    // Fungsi inisialisasi tetap sama
+    const setupCharts = () => {
+        const cpuCanvas = document.getElementById('cpuChart');
+        const ramCanvas = document.getElementById('ramChart');
+        const diskCanvas = document.getElementById('diskChart');
+
+        if (cpuCanvas && !cpuChart) {
+            cpuChart = new Chart(cpuCanvas.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: Array(20).fill(''),
+                    datasets: [{
+                        data: Array(20).fill(0),
+                        borderColor: '#E3833C',
+                        backgroundColor: 'rgba(227, 131, 60, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: false,
+                    scales: { y: { min: 0, max: 100 }, x: { display: false } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // INIT RAM (PASTIKAN BAGIAN INI ADA DAN SAMA)
+        if (ramCanvas && !ramChart) {
+            ramChart = new Chart(ramCanvas.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: Array(20).fill(''),
+                    datasets: [{
+                        data: Array(20).fill(0),
+                        borderColor: mainColor, // Samakan warna agar seragam #E3833C
+                        backgroundColor: 'rgba(227, 131, 60, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: false,
+                    scales: { y: { min: 0, max: 100 }, x: { display: false } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // INIT DISK (Doughnut)
+        if (diskCanvas && !diskChart) {
+            diskChart = new Chart(diskCanvas.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Used', 'Free'],
+                    datasets: [{
+                        data: [0, 100], 
+                        backgroundColor: ['#E3833C', '#f3f4f6'], // Oranye & Abu-abu
+                        borderWidth: 0,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '75%', // Agar tengahnya bolong (modern look)
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+    };
+
+    setupCharts();
+
+    const setupDiskChart = () => {
+    const diskCanvas = document.getElementById('diskChart');
+    if (diskCanvas && !diskChart) {
+            diskChart = new Chart(diskCanvas.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Used', 'Free'],
+                    datasets: [{
+                        data: [0, 100], // Start empty
+                        backgroundColor: ['#E3833C', '#f3f4f6'], // Oranye vs Abu-abu muda
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%', // Membuat lubang di tengah lebih besar agar clean
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+    };
+
+    setupDiskChart();
+
+    // LISTENER YANG LEBIH KUAT
+    $wire.on('stats-updated', (data) => {
+        // DEBUG: Lihat di console apakah data muncul setiap 2 detik
+        // console.log('Data masuk:', data);
+
+        // Terkadang v4 mengirim data sebagai parameter pertama (objek)
+        // Jika data.cpu undefined, coba data[0].cpu
+        const cpuVal = data.cpu !== undefined ? data.cpu : (data[0] ? data[0].cpu : 0);
+        const ramVal = data.ram !== undefined ? data.ram : (data[0] ? data[0].ram : 0);
+
+        if (cpuChart) {
+            cpuChart.data.datasets[0].data.push(cpuVal);
+            cpuChart.data.datasets[0].data.shift();
+            cpuChart.update('none');
+        }
+
+        // Update RAM
+        if (ramChart) {
+            ramChart.data.datasets[0].data.push(ramVal);
+            ramChart.data.datasets[0].data.shift();
+            ramChart.update('none');
+        }
+
+        if (diskChart) {
+            const used = data.diskUsed !== undefined ? data.diskUsed : (data[0] ? data[0].diskUsed : 0);
+            const free = data.diskFree !== undefined ? data.diskFree : (data[0] ? data[0].diskFree : 100);
+            
+            diskChart.data.datasets[0].data = [used, free];
+            diskChart.update(); // Untuk Pie/Doughnut tidak perlu 'none' agar transisinya halus
+        }
+    });
+</script>

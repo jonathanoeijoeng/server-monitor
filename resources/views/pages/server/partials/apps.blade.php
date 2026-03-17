@@ -1,0 +1,52 @@
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+    <div
+        class="lg:col-span-2 bg-white dark:bg-zinc-800 rounded-2xl border border-gray-100 dark:border-zinc-700 overflow-hidden shadow-sm">
+        <div
+            class="p-4 border-b border-gray-50 dark:border-zinc-700 bg-orange-50 dark:bg-zinc-800/50 flex justify-between items-center">
+            <h3 class="text-xs font-bold dark:text-white uppercase tracking-wider text-zinc-800">Application Health</h3>
+            <span class="text-[10px] text-gray-400">Polling: 15s</span>
+        </div>
+        <div class="divide-y divide-gray-50 dark:divide-zinc-700">
+            @foreach($apps as $app)
+            <div class="p-4 flex justify-between items-center hover:bg-gray-50 dark:hover:bg-zinc-700/30 transition">
+                <div class="flex flex-col">
+                    <span class="font-bold text-gray-800 dark:text-zinc-200">{{ $app['name'] }}</span>
+                    <span class="text-[10px] text-gray-400 font-mono">{{ str_replace(['https://', 'http://'],
+                        '', $app['url']) }}</span>
+                </div>
+                <div
+                    class="flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700">
+                    <span
+                        class="flex h-2 w-2 rounded-full {{ $app['status'] === 'online' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-red-500 animate-pulse' }}"></span>
+                    <span
+                        class="text-[10px] font-black uppercase {{ $app['status'] === 'online' ? 'text-green-600' : 'text-red-600' }}">
+                        {{ $app['status'] }}
+                    </span>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+
+    <div class="flex flex-col gap-6">
+        <div
+            class="bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-gray-100 dark:border-zinc-700 shadow-sm flex items-center justify-between">
+            <div>
+                <p class="text-[10px] font-bold text-gray-400 uppercase">Docker Status</p>
+                <p class="text-2xl font-black text-gray-900">{{ $activeContainers }} <span
+                        class="text-sm font-normal text-gray-500">Containers</span></p>
+            </div>
+            <div class="p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-xl">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-width="2"
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-gray-100 dark:border-zinc-700 shadow-sm">
+            <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">System Uptime</p>
+            <p class="text-xl font-black text-gray-900">{{ $uptime }}</p>
+        </div>
+    </div>
+</div>
