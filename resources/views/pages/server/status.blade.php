@@ -19,6 +19,7 @@ new class extends Component
     public $upUnit = "kb/s";
     private $storageKey = 'network_stats';
     public $dockerStats = '0 / 0';
+    public $exitedContainers = [];
     
     
     public $selectedApp = 'expense-tracker';
@@ -91,19 +92,24 @@ new class extends Component
 
             if ($response) {
                 $containers = json_decode($response, true);
+                
                 if (is_array($containers)) {
                     $total = count($containers);
-                    // Filter hanya yang statusnya 'running'
-                    $running = count(array_filter($containers, function($container) {
-                        return $container['State'] === 'running';
-                    }));
+                    $runningCount = 0;
+                    $exitedList = [];
 
-                    $this->dockerStats = "{$running} / {$total}";
-                } else {
-                    $this->dockerStats = "0 / 0";
+                    foreach ($containers as $container) {
+                        if ($container['State'] === 'running') {
+                            $runningCount++;
+                        } else {
+                            // Ambil nama, hilangkan slash di depan, dan simpan ke array
+                            $exitedList[] = ltrim($container['Names'][0] ?? 'Unknown', '/');
+                        }
+                    }
+
+                    $this->dockerStats = "{$runningCount} / {$total}";
+                    $this->exitedContainers = $exitedList; // Simpan daftar nama untuk UI
                 }
-            } else {
-                $this->dockerStats = "Error";
             }
         } else {
             // Mac Mock for testing

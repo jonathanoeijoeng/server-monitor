@@ -36,6 +36,13 @@
                 <div class="p-4 border-b border-gray-50 dark:border-zinc-700 bg-orange-50 dark:bg-zinc-800/50">
                     <h3 class="text-xs font-bold dark:text-white uppercase tracking-wider text-zinc-800">Docker Status
                     </h3>
+                    @if(count($exitedContainers) > 0)
+                    <button @click="showList = !showList"
+                        class="text-[10px] font-black bg-red-100 text-red-600 px-2 py-1 rounded hover:bg-red-200 transition uppercase tracking-tighter">
+                        <span x-show="!showList">Check System</span>
+                        <span x-show="showList">Close</span>
+                    </button>
+                    @endif
                 </div>
 
                 <div class="p-4 flex-1 flex flex-col justify-center items-start">
