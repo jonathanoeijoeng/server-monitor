@@ -44,15 +44,15 @@ new class extends Component
         return round($bytes / 1048576, $precision) . ' MB';
     }
 
-private function splitBytes($bytes) {
-    if ($bytes < 1024) {
-        return ['value' => number_format($bytes, 0), 'unit' => 'B'];
+    private function splitBytes($bytes) {
+        if ($bytes < 1024) {
+            return ['value' => number_format($bytes, 0), 'unit' => 'B'];
+        }
+        if ($bytes < 1048576) {
+            return ['value' => number_format($bytes / 1024, 1), 'unit' => 'KB'];
+        }
+        return ['value' => number_format($bytes / 1048576, 1), 'unit' => 'MB'];
     }
-    if ($bytes < 1048576) {
-        return ['value' => number_format($bytes / 1024, 1), 'unit' => 'KB'];
-    }
-    return ['value' => number_format($bytes / 1048576, 1), 'unit' => 'MB'];
-}
 
     public function mount()
     {
@@ -126,16 +126,6 @@ private function splitBytes($bytes) {
                 $this->apps[$key]['status'] = 'offline';
             }
         }
-    }
-
-    private function splitBytes($bytes) {
-        if ($bytes < 1024) {
-            return ['value' => number_format($bytes, 0), 'unit' => 'B'];
-        }
-        if ($bytes < 1048576) {
-            return ['value' => number_format($bytes / 1024, 1), 'unit' => 'KB'];
-        }
-        return ['value' => number_format($bytes / 1048576, 1), 'unit' => 'MB'];
     }
 
     public function runAction($action)
