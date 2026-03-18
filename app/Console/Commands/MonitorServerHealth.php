@@ -60,7 +60,7 @@ class MonitorServerHealth extends Command
 
                 // Jika sudah lebih dari 30 detik (Saran: 30-60 detik lebih stabil)
                 if ($duration >= 30 && !Cache::has($cooldownKey)) {
-                    $this->sendAlerts($data['label'], $data['value'], $duration, $data['unit']);
+                    $this->sendAlerts($data['label'], $data['value'], $displayDuration, $data['unit']);
                     $this->info("Mengirim ke Telegram...");
                     Cache::put($cooldownKey, true, now()->addMinutes(30)); // Cooldown 30 menit
                 }
