@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Carbon\CarbonInterface;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -37,8 +38,8 @@ class MonitorServerHealth extends Command
 
         // 2. Threshold Konfigurasi
         $limits = [
-            'cpu' => ['value' => $tempRaw, 'limit' => 70, 'label' => 'CPU Temperature', 'unit' => '°C'],
-            'ram' => ['value' => $ramPercent, 'limit' => 80, 'label' => 'RAM Usage', 'unit' => '%']
+            'cpu' => ['value' => $tempRaw, 'limit' => 10, 'label' => 'CPU Temperature', 'unit' => '°C'],
+            'ram' => ['value' => $ramPercent, 'limit' => 5, 'label' => 'RAM Usage', 'unit' => '%']
         ];
 
         foreach ($limits as $key => $data) {
@@ -55,7 +56,16 @@ class MonitorServerHealth extends Command
                 $startedAt = Cache::get($cacheKey);
                 $this->info("Waktu mulai alert: {$startedAt}");
                 $duration = $startedAt->diffInSeconds(now());
-                $displayDuration = (int) $duration;
+
+                // Di dalam loop atau tempat kamu menghitung durasi
+                $displayDuration = $startedAt->diffForHumans(now(), [
+                    'syntax' => CarbonInterface::DIFF_ABSOLUTE, // Hasil: "2 minutes"
+                    'parts' => 6, // Ambil 1 unit saja (menit saja, jangan menit + detik)
+                    'join' => ',', // Gabungkan dengan koma jika ada lebih dari 1 unit
+                    'short' => true, // Gunakan format pendek (2m untuk 2 menit)
+                ]);
+
+                // Lalu di sendAlerts kamu kirim $durationString
                 $this->info("Durasi melebihi batas: {$displayDuration} detik");
 
                 // Jika sudah lebih dari 30 detik (Saran: 30-60 detik lebih stabil)
