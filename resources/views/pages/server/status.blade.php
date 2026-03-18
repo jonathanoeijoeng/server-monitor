@@ -82,7 +82,7 @@ new class extends Component
             $tempRaw = (float) @shell_exec("cat /sys/class/thermal/thermal_zone4/temp") / 1000;
 
             // Format: 1 angka di belakang koma, pemisah desimal menggunakan ',', pemisah ribuan menggunakan '.'
-            $this->cpuTemp = number_format($tempRaw, 1, ',', '.');
+            $this->cpuTemp = number_format($tempRaw, 1, '.', ',');
 
             $this->uptime = shell_exec("uptime -p");
 
