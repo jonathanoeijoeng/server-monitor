@@ -61,7 +61,7 @@ class MonitorServerHealth extends Command
                 $displayDuration = $startedAt->diffForHumans(now(), [
                     'syntax' => CarbonInterface::DIFF_ABSOLUTE, // Hasil: "2 minutes"
                     'parts' => 6, // Ambil 1 unit saja (menit saja, jangan menit + detik)
-                    'join' => ',', // Gabungkan dengan koma jika ada lebih dari 1 unit
+                    'join' => ' ', // Gabungkan dengan spasi 
                     'short' => true, // Gunakan format pendek (2m untuk 2 menit)
                 ]);
 
