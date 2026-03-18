@@ -120,7 +120,7 @@ new class extends Component
             // Mac Mock for testing
             $this->cpuUsage = rand(10, 90);
             $this->ramUsage = rand(20, 80);
-            $this->cpuTemp = rand(30, 85);
+            $this->cpuTemp = rand(70, 99);
             $this->diskFreeGB = 65;
             $this->diskUsage = 35; // 35% terpakai
             $this->uptime = 'up 2 hours, 30 minutes'; $this->activeContainers = 3;

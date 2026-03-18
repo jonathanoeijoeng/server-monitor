@@ -100,7 +100,7 @@
                 </h3>
             </div>
             <div
-                class="bg-white dark:bg-zinc-800 p-4 rounded-2xl border border-gray-100 dark:border-zinc-700 shadow-sm">
+                class="bg-white dark:bg-zinc-800 p-4 border border-gray-100 dark:border-zinc-700 shadow-sm">
                 <p class="text-xl font-black text-gray-900">{{ $uptime }}</p>
             </div>
         </div>

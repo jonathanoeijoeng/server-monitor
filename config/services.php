@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'telegram' => [
+        'token' => env('TELEGRAM_BOT_TOKEN'), // Harus sama dengan di .env
+        'chat_id' => env('TELEGRAM_CHAT_ID'),
+    ],
+
 ];
