@@ -4,19 +4,19 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: server-monitor-app
-    privileged: true
+    # privileged: true
     restart: always
     working_dir: /var/www
     environment:
       - TZ=Asia/Jakarta
     volumes:
       - ./:/var/www
-      - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
       - ./database:/var/www/database
       - /proc:/proc:ro
       - /sys:/sys:ro
+      - /var/run/docker.sock:/var/run/docker.sock:rw
     networks:
       - hellojonathan-network
 
