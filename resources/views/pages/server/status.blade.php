@@ -78,7 +78,12 @@ new class extends Component
             $this->diskUsage = (int) shell_exec("df -h / | grep / | awk '{print $5}' | cut -d% -f1");
             $this->diskFreeGB = round(disk_free_space("/") / 1024 / 1024 / 1024, 1);
             
-            $this->cpuTemp = (float) @shell_exec("cat /sys/class/thermal/thermal_zone0/temp") / 1000;
+            // Ambil data suhu
+            $tempRaw = (float) @shell_exec("cat /sys/class/thermal/thermal_zone4/temp") / 1000;
+
+            // Format: 1 angka di belakang koma, pemisah desimal menggunakan ',', pemisah ribuan menggunakan '.'
+            $this->cpuTemp = number_format($tempRaw, 1, ',', '.');
+
             $this->uptime = shell_exec("uptime -p");
 
             $downBps = rand(50000, 1500000); // 50KB - 1.5MB
