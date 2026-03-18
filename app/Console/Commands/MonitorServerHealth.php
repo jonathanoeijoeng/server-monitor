@@ -15,8 +15,11 @@ class MonitorServerHealth extends Command
 
     public function handle()
     {
+        $this->info("Memulai cek suhu...");
         // 1. Ambil Data (Pastikan Thermal Zone 4 untuk NUC)
-        $tempRaw = (float) @shell_exec("cat /sys/class/thermal/thermal_zone4/temp") / 1000;
+        $tempRaw = (float) shell_exec("cat /sys/class/thermal/thermal_zone4/temp") / 1000;
+        // $tempRaw = (float) trim($temp) / 1000;
+        $this->info("Suhu CPU: {$tempRaw}°C");
 
         // Ambil RAM (Menggunakan command 'free')
         $freeOutput = shell_exec("free | grep Mem");
@@ -25,6 +28,7 @@ class MonitorServerHealth extends Command
         $usedRam = $matches[0][1];
         $ramPercent = ($usedRam / $totalRam) * 100;
         $ramUsage = (int) shell_exec("free | grep Mem | awk '{print $3/$2 * 100.0}'");
+        $this->info("RAM Usage: {$ramPercent}%");
         // $tempRaw = 85.5;
         // $ramPercent = 90.0;
 
@@ -33,8 +37,8 @@ class MonitorServerHealth extends Command
 
         // 2. Threshold Konfigurasi
         $limits = [
-            'cpu' => ['value' => $tempRaw, 'limit' => 10, 'label' => 'CPU Temperature', 'unit' => '°C'],
-            'ram' => ['value' => $ramPercent, 'limit' => 0, 'label' => 'RAM Usage', 'unit' => '%']
+            'cpu' => ['value' => $tempRaw, 'limit' => 70, 'label' => 'CPU Temperature', 'unit' => '°C'],
+            'ram' => ['value' => $ramPercent, 'limit' => 80, 'label' => 'RAM Usage', 'unit' => '%']
         ];
 
         foreach ($limits as $key => $data) {
@@ -46,15 +50,21 @@ class MonitorServerHealth extends Command
                 if (!Cache::has($cacheKey)) {
                     Cache::put($cacheKey, now(), now()->addHours(1));
                 }
+                $this->info("Alert: {$data['label']} melebihi batas! Nilai: {$data['value']}{$data['unit']}");
 
                 $startedAt = Cache::get($cacheKey);
-                $duration = now()->diffInSeconds($startedAt);
+                $this->info("Waktu mulai alert: {$startedAt}");
+                $duration = $startedAt->diffInSeconds(now());
+                $displayDuration = (int) $duration;
+                $this->info("Durasi melebihi batas: {$displayDuration} detik");
 
                 // Jika sudah lebih dari 30 detik (Saran: 30-60 detik lebih stabil)
                 if ($duration >= 30 && !Cache::has($cooldownKey)) {
                     $this->sendAlerts($data['label'], $data['value'], $duration, $data['unit']);
+                    $this->info("Mengirim ke Telegram...");
                     Cache::put($cooldownKey, true, now()->addMinutes(30)); // Cooldown 30 menit
                 }
+                $this->info("Durasi saat ini: {$duration} detik dan waktu sekarang: " . now());
             } else {
                 // Reset jika sudah kembali normal
                 Cache::forget($cacheKey);
@@ -63,7 +73,7 @@ class MonitorServerHealth extends Command
         }
     }
 
-    protected function sendAlerts($label, $value, $duration, $unit)
+    protected function sendAlerts($label, $value, $displayDuration, $unit)
     {
         $formattedValue = number_format($value, 1, ',', '.');
         $serverName = "Home Server"; // Bisa diganti dengan nama dinamis jika perlu
@@ -72,12 +82,12 @@ class MonitorServerHealth extends Command
         $telegramMsg = "🚨 *SERVER ALERT: {$serverName}*\n\n"
             . "Type: *{$label}*\n"
             . "Current Value: *{$formattedValue}{$unit}*\n"
-            . "Duration: *>{$duration} seconds*\n"
+            . "Duration: *>{$displayDuration} seconds*\n"
             . "Status: *CRITICAL*\n\n"
             . "Please check your Docker containers immediately.";
 
         // Kirim Telegram (Gunakan token/ID yang sudah Anda punya)
-        $response = Http::post("https://api.telegram.org/bot" . config('services.telegram.token') . "/sendMessage", [
+        $response = Http::withoutVerifying()->post("https://api.telegram.org/bot" . config('services.telegram.token') . "/sendMessage", [
             'chat_id' => config('services.telegram.chat_id'),
             'text' => $telegramMsg,
             'parse_mode' => 'Markdown'
@@ -97,7 +107,7 @@ class MonitorServerHealth extends Command
             . "Server: {$serverName}\n"
             . "Metric: {$label}\n"
             . "Value: {$formattedValue}{$unit}\n"
-            . "Threshold Exceeded for: {$duration} seconds\n"
+            . "Threshold Exceeded for: {$displayDuration} seconds\n"
             . "Time: " . now()->toDateTimeString() . "\n"
             . "--------------------------\n"
             . "This is an automated message from your Intel NUC Monitor.";
