@@ -66,7 +66,7 @@ class MonitorServerHealth extends Command
                 ]);
 
                 // Lalu di sendAlerts kamu kirim $durationString
-                $this->info("Durasi melebihi batas: {$displayDuration} detik");
+                $this->info("Durasi melebihi batas: {$displayDuration}");
 
                 // Jika sudah lebih dari 30 detik (Saran: 30-60 detik lebih stabil)
                 if ($duration >= 30 && !Cache::has($cooldownKey)) {
@@ -92,7 +92,7 @@ class MonitorServerHealth extends Command
         $telegramMsg = "🚨 *SERVER ALERT: {$serverName}*\n\n"
             . "Type: *{$label}*\n"
             . "Current Value: *{$formattedValue}{$unit}*\n"
-            . "Duration: *>{$displayDuration} seconds*\n"
+            . "Duration: *>{$displayDuration}*\n"
             . "Status: *CRITICAL*\n\n"
             . "Please check your Docker containers immediately.";
 
@@ -117,7 +117,7 @@ class MonitorServerHealth extends Command
             . "Server: {$serverName}\n"
             . "Metric: {$label}\n"
             . "Value: {$formattedValue}{$unit}\n"
-            . "Threshold Exceeded for: {$displayDuration} seconds\n"
+            . "Threshold Exceeded for: {$displayDuration}\n"
             . "Time: " . now()->toDateTimeString() . "\n"
             . "--------------------------\n"
             . "This is an automated message from your Intel NUC Monitor.";
