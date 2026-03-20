@@ -20,7 +20,7 @@ services:
     networks:
       - hellojonathan-network
 
-  server-monitor-nginx:
+  server-monitor-web:
     image: nginx:alpine
     container_name: server-monitor-nginx
     restart: always
