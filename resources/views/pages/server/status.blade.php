@@ -43,7 +43,7 @@ new class extends Component
             'path' => '/var/www/server-monitor',
             'url'  => 'https://server-monitor.hellojonathan.my.id',
             'status' => 'checking...'
-        ]
+        ],
         'snippet-manager' => [
             'name' => 'Snippet Manager',
             'path' => '/var/www/snippet-manager',
