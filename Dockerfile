@@ -31,13 +31,17 @@ WORKDIR /var/www
 # 4. Salin semua file proyek ke kontainer
 COPY . /var/www
 
-# 5. Atur kepemilikan agar sesuai dengan www-data
-# Ini memperbaiki masalah "Permission Denied" dan "tempnam()"
-RUN chown -R www-data:www-data /var/www \
-    && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
+# 5. Gunakan user 'server' (UID 1000) agar sama dengan user NUC Anda
+RUN groupadd -g 1000 server \
+    && useradd -u 1000 -ms /bin/bash -g server server
 
-# 6. Jalankan kontainer sebagai user www-data
-USER www-data
+# 6. Set owner ke 'server'
+COPY --chown=server:server . /var/www
+
+# Pastikan folder krusial bisa ditulis oleh user 1000
+RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache /var/www/database
+
+USER server
 
 EXPOSE 9000
 

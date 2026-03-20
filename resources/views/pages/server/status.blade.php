@@ -44,6 +44,12 @@ new class extends Component
             'url'  => 'https://server-monitor.hellojonathan.my.id',
             'status' => 'checking...'
         ]
+        'snippet-manager' => [
+            'name' => 'Snippet Manager',
+            'path' => '/var/www/snippet-manager',
+            'url'  => 'https://snippet-manager.hellojonathan.my.id',
+            'status' => 'checking...'
+        ]
     ];
 
     private function formatBytes($bytes, $precision = 1) {
