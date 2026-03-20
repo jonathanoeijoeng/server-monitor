@@ -43,7 +43,7 @@ services:
   #   networks:
   #     - hellojonathan-network
 
-  worker:
+  server-monitor-worker:
     build:
       context: .
       dockerfile: Dockerfile
@@ -57,7 +57,7 @@ services:
     depends_on:
       - server-monitor-app
 
-  scheduler:
+  server-monitor-scheduler:
     build:
       context: .
       dockerfile: Dockerfile
