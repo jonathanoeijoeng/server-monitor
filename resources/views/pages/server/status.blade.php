@@ -51,6 +51,7 @@ new class extends Component
             'status' => 'checking...'
         ]
     ];
+    
 
     private function formatBytes($bytes, $precision = 1) {
         if ($bytes < 1024) return $bytes . ' B';
