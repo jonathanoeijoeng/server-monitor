@@ -38,6 +38,12 @@ new class extends Component
             'url'  => 'https://hellojonathan.my.id',
             'status' => 'checking...'
         ],
+        'qresta' => [
+            'name' => 'QResta Resto apps',
+            'path' => '/var/www/qresta',
+            'url'  => 'https://qresta.hellojonathan.my.id',
+            'status' => 'checking...'
+        ],
         'server-monitor' => [
             'name' => 'Server Monitor',
             'path' => '/var/www/server-monitor',
