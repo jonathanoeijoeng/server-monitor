@@ -28,8 +28,8 @@ new class extends Component
     public $apps = [
         'expense-tracker' => [
             'name' => 'Expenses Tracker',
-            'path' => '/var/www/expense-tracker',
-            'url'  => 'https://expense.hellojonathan.my.id',
+            'path' => '/var/www/expenses',
+            'url'  => 'https://expenses.hellojonathan.my.id',
             'status' => 'checking...'
         ],
         'portfolio' => [

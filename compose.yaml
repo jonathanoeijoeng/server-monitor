@@ -1,0 +1,64 @@
+services:
+  server-monitor-app:
+    build: .
+    container_name: server-monitor-app
+    userns_mode: keep-id  # <--- TAMBAHKAN INI
+    user: "1000:1000"
+    restart: always
+    environment:
+      - TZ=Asia/Jakarta
+    volumes:
+      - ./:/var/www:z
+      - ./database:/var/www/database:z
+      - ./www.conf:/etc/php-fpm.d/www.conf:z
+      - ./public/build:/var/www/public/build:Z
+      # - /proc:/proc:ro
+      # - /sys:/sys:ro
+      # - /var/run/docker.sock:/var/run/docker.sock:rw
+    networks:
+      - hellojonathan-network
+
+  server-monitor-nginx:
+    image: nginx:alpine
+    container_name: server-monitor-nginx
+    restart: always
+    ports:
+      - "8083:80" # Langsung buka port 80 agar bisa diakses via IP Mini PC
+    volumes:
+      - ./:/var/www:z
+      - ./docker-compose/nginx:/etc/nginx/conf.d/:z
+    networks:
+      - hellojonathan-network
+    depends_on:
+      - server-monitor-app
+
+  server-monitor-worker:
+    build: .
+    container_name: server-monitor-worker
+    restart: always
+    command: php artisan queue:work --tries=3
+    userns_mode: keep-id 
+    volumes:
+      - ./:/var/www:z
+    networks:
+      - hellojonathan-network
+    depends_on:
+      - server-monitor-app
+
+  server-monitor-scheduler:
+    build: .
+    container_name: server-monitor-scheduler
+    userns_mode: keep-id 
+    restart: always
+    command: sh -c "while [ true ]; do php artisan schedule:run --no-interaction & sleep 60; done"
+    volumes:
+      - ./:/var/www:z
+    networks:
+      - hellojonathan-network
+    depends_on:
+      - server-monitor-app
+
+networks:
+  hellojonathan-network:
+    external: true
+    name: hellojonathan-network
