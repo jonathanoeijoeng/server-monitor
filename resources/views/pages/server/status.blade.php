@@ -29,7 +29,7 @@ new class extends Component
         'expense-tracker' => [
             'name' => 'Expenses Tracker',
             'path' => '/var/www/expense-tracker',
-            'url'  => 'https://expense.hellojonathan.my.id',
+            'url'  => 'https://expenses.hellojonathan.my.id',
             'status' => 'checking...'
         ],
         'portfolio' => [
@@ -50,12 +50,6 @@ new class extends Component
             'url'  => 'https://server-monitor.hellojonathan.my.id',
             'status' => 'checking...'
         ],
-        'snippets-manager' => [
-            'name' => 'Snippets Manager',
-            'path' => '/var/www/snippets-manager',
-            'url'  => 'https://snippets-manager.hellojonathan.my.id',
-            'status' => 'checking...'
-        ]
     ];
     
 
