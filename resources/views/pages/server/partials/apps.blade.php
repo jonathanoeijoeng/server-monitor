@@ -7,23 +7,26 @@
             <span class="text-[10px] text-gray-400">Polling: 15s</span>
         </div>
         <div class="divide-y divide-gray-50 dark:divide-zinc-700">
-            @foreach($apps as $app)
-            <div class="p-4 flex justify-between items-center hover:bg-gray-50 dark:hover:bg-zinc-700/30 transition">
-                <div class="flex flex-col">
-                    <span class="font-bold text-gray-800 dark:text-zinc-200">{{ $app['name'] }}</span>
-                    <span class="text-[10px] text-gray-400 font-mono">{{ str_replace(['https://', 'http://'],
-                        '', $app['url']) }}</span>
-                </div>
-                <div
-                    class="flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700">
-                    <span
-                        class="flex h-2 w-2 rounded-full {{ $app['status'] === 'online' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-red-500 animate-pulse' }}"></span>
-                    <span
-                        class="text-[10px] font-black uppercase {{ $app['status'] === 'online' ? 'text-green-600' : 'text-red-600' }}">
-                        {{ $app['status'] }}
-                    </span>
-                </div>
-            </div>
+            @foreach ($apps as $app)
+                <a href="{{ $app['url'] }}">
+                    <div
+                        class="p-4 flex justify-between items-center hover:bg-gray-50 dark:hover:bg-zinc-700/30 transition">
+                        <div class="flex flex-col">
+                            <span class="font-bold text-gray-800 dark:text-zinc-200">{{ $app['name'] }}</span>
+                            <span
+                                class="text-[10px] text-gray-400 font-mono">{{ str_replace(['https://', 'http://'], '', $app['url']) }}</span>
+                        </div>
+                        <div
+                            class="flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700">
+                            <span
+                                class="flex h-2 w-2 rounded-full {{ $app['status'] === 'online' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-red-500 animate-pulse' }}"></span>
+                            <span
+                                class="text-[10px] font-black uppercase {{ $app['status'] === 'online' ? 'text-green-600' : 'text-red-600' }}">
+                                {{ $app['status'] }}
+                            </span>
+                        </div>
+                    </div>
+                </a>
             @endforeach
         </div>
     </div>
@@ -36,12 +39,12 @@
                 <div class="p-4 border-b border-gray-50 dark:border-zinc-700 bg-orange-50 dark:bg-zinc-800/50">
                     <h3 class="text-xs font-bold dark:text-white uppercase tracking-wider text-zinc-800">Docker Status
                     </h3>
-                    @if(count($exitedContainers) > 0)
-                    <button @click="showList = !showList"
-                        class="text-[10px] font-black bg-red-100 text-red-600 px-2 py-1 rounded hover:bg-red-200 transition uppercase tracking-tighter">
-                        <span x-show="!showList">Check System</span>
-                        <span x-show="showList">Close</span>
-                    </button>
+                    @if (count($exitedContainers) > 0)
+                        <button @click="showList = !showList"
+                            class="text-[10px] font-black bg-red-100 text-red-600 px-2 py-1 rounded hover:bg-red-200 transition uppercase tracking-tighter">
+                            <span x-show="!showList">Check System</span>
+                            <span x-show="showList">Close</span>
+                        </button>
                     @endif
                 </div>
 
@@ -59,15 +62,16 @@
                             / {{ explode(' / ', $dockerStats)[1] }}
                         </span>
 
-                        @if((int)explode(' / ', $dockerStats)[0] < (int)explode(' / ', $dockerStats)[1])
+                        @if ((int) explode(' / ', $dockerStats)[0] < (int) explode(' / ', $dockerStats)[1])
                             <div class="ml-3 flex h-2.5 w-2.5 relative">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                <span
+                                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                                 <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
                             </div>
-                            @endif
-                        </div>
+                        @endif
                     </div>
                 </div>
+            </div>
             <div
                 class="bg-white dark:bg-zinc-800 rounded-2xl border border-gray-100 dark:border-zinc-700 overflow-hidden shadow-sm">
                 <div class="p-4 border-b border-gray-50 dark:border-zinc-700 bg-orange-50 dark:bg-zinc-800/50">
@@ -99,8 +103,7 @@
                 <h3 class="text-xs font-bold dark:text-white uppercase tracking-wider text-zinc-800">System Uptime
                 </h3>
             </div>
-            <div
-                class="bg-white dark:bg-zinc-800 p-4 border border-gray-100 dark:border-zinc-700 shadow-sm">
+            <div class="bg-white dark:bg-zinc-800 p-4 border border-gray-100 dark:border-zinc-700 shadow-sm">
                 <p class="text-xl font-black text-gray-900">{{ $uptime }}</p>
             </div>
         </div>
