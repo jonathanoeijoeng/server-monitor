@@ -38,7 +38,7 @@ class MonitorServerHealth extends Command
 
         // 2. Threshold Konfigurasi
         $limits = [
-            'cpu' => ['value' => $tempRaw, 'limit' => 70, 'label' => 'CPU Temperature', 'unit' => '°C'],
+            'cpu' => ['value' => $tempRaw, 'limit' => 80, 'label' => 'CPU Temperature', 'unit' => '°C'],
             'ram' => ['value' => $ramPercent, 'limit' => 80, 'label' => 'RAM Usage', 'unit' => '%']
         ];
 
